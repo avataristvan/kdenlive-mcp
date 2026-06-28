@@ -5196,6 +5196,31 @@ bool TimelineModel::requestRemoveFromGroup(int itemId, Fun &undo, Fun &redo)
     return res;
 }
 
+bool TimelineModel::requestRemoveFromGroup(int itemId, bool logUndo)
+{
+    QWriteLocker locker(&m_lock);
+    if (!m_groups->isInGroup(itemId)) return false;
+    Fun undo = []() { return true; };
+    Fun redo = []() { return true; };
+    bool result = requestRemoveFromGroup(itemId, undo, redo);
+    if (result && logUndo) {
+        PUSH_UNDO(undo, redo, i18n("Remove from group"));
+    }
+    return result;
+}
+
+int TimelineModel::getGroupRootId(int itemId) const
+{
+    READ_LOCK();
+    return m_groups->getRootId(itemId);
+}
+
+GroupType TimelineModel::getGroupType(int itemId) const
+{
+    READ_LOCK();
+    return m_groups->getType(itemId);
+}
+
 bool TimelineModel::requestTrackInsertion(int position, int &id, const QString &trackName, bool audioTrack)
 {
     QWriteLocker locker(&m_lock);
@@ -6341,6 +6366,38 @@ int TimelineModel::getCompositionPlaytime(int compoId) const
     const auto trans = m_allCompositions.at(compoId);
     int playtime = trans->getPlaytime();
     return playtime;
+}
+
+QList<int> TimelineModel::getCompositionIds() const
+{
+    READ_LOCK();
+    QList<int> ids;
+    ids.reserve(int(m_allCompositions.size()));
+    for (const auto &[id, _] : m_allCompositions) {
+        ids.append(id);
+    }
+    return ids;
+}
+
+bool TimelineModel::getClipHasTimeRemap(int clipId) const
+{
+    READ_LOCK();
+    Q_ASSERT(m_allClips.count(clipId));
+    return m_allClips.at(clipId)->hasTimeRemap();
+}
+
+QMap<QString, QString> TimelineModel::getClipRemapValues(int clipId) const
+{
+    READ_LOCK();
+    Q_ASSERT(m_allClips.count(clipId));
+    return m_allClips.at(clipId)->getRemapValues();
+}
+
+void TimelineModel::setClipRemapValue(int clipId, const QString &name, const QString &value)
+{
+    QWriteLocker locker(&m_lock);
+    Q_ASSERT(m_allClips.count(clipId));
+    m_allClips[clipId]->setRemapValue(name, value);
 }
 
 int TimelineModel::getItemPosition(int itemId) const

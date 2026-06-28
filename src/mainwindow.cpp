@@ -39,8 +39,10 @@ SPDX-License-Identifier: GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 #include "render/renderserver.h"
 
 #ifndef NODBUS
+#include <QDBusConnection>
 #include <QDBusConnectionInterface>
 #include <QDBusInterface>
+#include "scripting/KdenliveScriptingAdaptor.h"
 #endif
 
 // #include "kdenlive_debug.h"
@@ -181,6 +183,13 @@ void MainWindow::init()
 
     // Handle communication with the renderer app
     new RenderServer(this);
+
+#ifndef NODBUS
+    new KdenliveScriptingAdaptor(this);
+    QDBusConnection::sessionBus().registerObject(QStringLiteral("/MainWindow"), this,
+                                                 QDBusConnection::ExportAdaptors | QDBusConnection::ExportScriptableSlots);
+#endif
+
     QString defaultProfile = KdenliveSettings::default_profile();
 
     pCore->setCurrentProfile(defaultProfile.isEmpty() ? ProjectManager::getDefaultProjectFormat() : defaultProfile);

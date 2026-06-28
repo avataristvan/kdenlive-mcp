@@ -241,6 +241,7 @@ public:
     int getSubtitleLayer(int subId) const;
     int getCompositionPlaytime(int compoId) const;
     int getCompositionEnd(int compoId) const;
+    QList<int> getCompositionIds() const;
     std::pair<int, int> getMixInOut(int cid) const;
     int getMixDuration(int cid) const;
 
@@ -695,6 +696,8 @@ public:
     bool requestClipUngroup(int itemId, Fun &undo, Fun &redo, bool onDeletion = false);
     /** Remove an item from a group*/
     bool requestRemoveFromGroup(int itemId, Fun &undo, Fun &redo);
+    /** Remove an item from a group, with undo/redo support */
+    bool requestRemoveFromGroup(int itemId, bool logUndo = true);
     /** @brief convenience functions for several ids at the same time */
     bool requestClipsUngroup(const std::unordered_set<int> &itemIds, bool logUndo = true);
 
@@ -748,6 +751,11 @@ public:
        @param clipId id of the clip to test
     */
     std::unordered_set<int> getGroupElements(int clipId);
+
+    /** @brief Get the root group id of the given item */
+    int getGroupRootId(int itemId) const;
+    /** @brief Get the type of the group for the given item */
+    GroupType getGroupType(int itemId) const;
 
     /** @brief Removes all the elements on the timeline (tracks and clips)
      */
@@ -904,6 +912,9 @@ public:
     bool requestClipTimeWarp(int clipId, double speed, bool pitchCompensate, bool changeDuration, Fun &undo, Fun &redo);
     bool requestClipTimeRemap(int clipId, bool enable = true);
     bool requestClipTimeRemap(int clipId, bool enable, Fun &undo, Fun &redo);
+    bool getClipHasTimeRemap(int clipId) const;
+    QMap<QString, QString> getClipRemapValues(int clipId) const;
+    void setClipRemapValue(int clipId, const QString &name, const QString &value);
     std::shared_ptr<Mlt::Producer> getClipProducer(int clipId);
 
     void replugClip(int clipId);

@@ -97,6 +97,22 @@ ecm_qt_declare_logging_category(kdenlive_SRCS
 
 if(USE_DBUS)
     qt_add_dbus_adaptor(kdenlive_SRCS org.kdenlive.MainWindow.xml mainwindow.h MainWindow)
+    list(APPEND kdenlive_SRCS
+        scripting/KdenliveScriptingAdaptor.cpp
+        scripting/KdenliveScriptingAdaptor.h
+        scripting/capabilities/project/ProjectCapability.cpp
+        scripting/capabilities/bin/BinCapability.cpp
+        scripting/capabilities/timeline/TimelineCapability.cpp
+        scripting/capabilities/transitions/TransitionsCapability.cpp
+        scripting/capabilities/effects/EffectsCapability.cpp
+        scripting/capabilities/audio/AudioCapability.cpp
+        scripting/capabilities/clipproperties/ClipPropertiesCapability.cpp
+        scripting/capabilities/markers/MarkersCapability.cpp
+        scripting/capabilities/playback/PlaybackCapability.cpp
+        scripting/capabilities/sequences/SequencesCapability.cpp
+        scripting/capabilities/subtitles/SubtitlesCapability.cpp
+        scripting/capabilities/misc/MiscCapability.cpp
+    )
 endif()
 
 ## UI's
